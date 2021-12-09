@@ -12,6 +12,7 @@
 #include <ESP8266WiFi.h>          // https://github.com/esp8266/Arduino
 #include <PubSubClient.h>         // https://github.com/knolleary/pubsubclient
 #include <WiFiUdp.h>
+#include <Ticker.h>
 #include "config.h"
 
 #if defined(DEBUG_TELNET)
@@ -34,6 +35,7 @@ PubSubClient  mqttClient(wifiClient);
 WiFiUDP ntpUDP;
 //NTPClient timeClient(ntpUDP);
 NTPClient timeClient(ntpUDP, NTP_SERVER, 3600, 60000);
+Ticker print_ntp_time;
 #endif
 
 void PublicarLuz(void);
@@ -306,6 +308,13 @@ void CheckTeclas(){
 
 #pragma endregion
 
+#ifdef USE_NTP
+void print_time(){
+  timeClient.update();
+  Serial.println(timeClient.getFormattedTime());
+}
+#endif
+
 ///////////////////////////////////////////////////////////////////////////
 //  SETUP() AND LOOP()
 ///////////////////////////////////////////////////////////////////////////
@@ -330,6 +339,7 @@ void setup()
   connectToMQTT();
   #ifdef USE_NTP
   timeClient.begin();
+  print_ntp_time.attach(60, print_time);
   #endif
 
   digitalWrite(SALIDA1, LOW);
@@ -349,10 +359,5 @@ void loop()
 
   CheckTeclas();
   yield();
-
-#ifdef USE_NTP
-  timeClient.update();
-  Serial.println(timeClient.getFormattedTime());
-#endif
 
 }
