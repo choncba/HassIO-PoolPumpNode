@@ -1,26 +1,27 @@
 ///////////////////////////////////////////////////////////////////////////
 //   PINS
 ///////////////////////////////////////////////////////////////////////////
-#define PULSADOR1   D3  // GPIO0 - Tecla Cochera    
-#define SALIDA1     D4  // GPIO1 - Luz Cochera  
+#include "secrets.h"
+#define PULSADOR1   D3  // GPIO0 - Tecla Bomba    
+#define SALIDA1     D4  // GPIO1 - Salida a Bomba  
 
 ///////////////////////////////////////////////////////////////////////////
 //   WiFi
 ///////////////////////////////////////////////////////////////////////////
-#define WIFI_SSID       "GuiFi"
-#define WIFI_PASSWORD   "paula1548"
+#define WIFI_SSID       WIFI_SECRET_SSID
+#define WIFI_PASSWORD   WIFI_SECRET_PASS
 //#define DHCP            // uncomment for use DHCP
 #ifndef DHCP
-IPAddress NODE_IP(192,168,1,51);
+IPAddress NODE_IP(192,168,1,55);
 IPAddress NODE_GW(192,168,1,1);
 IPAddress NODE_MASK(255,255,255,0);
 #endif
 ///////////////////////////////////////////////////////////////////////////
 //   MQTT
 ///////////////////////////////////////////////////////////////////////////
-#define MQTT_CLIENT_ID    "NodoCochera"
-#define MQTT_USERNAME     "hass_mqtt"
-#define MQTT_PASSWORD     "chon2185"
+#define MQTT_CLIENT_ID    "NodoBomba"
+#define MQTT_USERNAME     MQTT_SECRET_USERNAME
+#define MQTT_PASSWORD     MQTT_SECRET_PASSWORD
 // #define MQTT_SERVER       "iotdevar.duckdns.org"
 #define MQTT_SERVER       "192.168.1.3"
 #define MQTT_SERVER_PORT  1883
@@ -39,16 +40,12 @@ IPAddress NODE_MASK(255,255,255,0);
 #define RETAIN true
 #define QoS     0
 
+///////// NTP ////////////
+#define USE_NTP 
+#define NTP_SERVER "pool.ntp.org"
+
 ///////////////////////////////////////////////////////////////////////////
 //   DEBUG
 ///////////////////////////////////////////////////////////////////////////
 #define DEBUG_TELNET
 //#define DEBUG_SERIAL
-
-///////////////////////////////////////////////////////////////////////////
-//   OTA
-///////////////////////////////////////////////////////////////////////////
-#define OTA
-#define OTA_HOSTNAME  MQTT_CLIENT_ID  // hostname esp8266-[ChipID] by default
-//#define OTA_PASSWORD  "password"  // no password by default
-//#define OTA_PORT      8266        // port 8266 by default
