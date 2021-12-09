@@ -1,0 +1,54 @@
+///////////////////////////////////////////////////////////////////////////
+//   PINS
+///////////////////////////////////////////////////////////////////////////
+#define PULSADOR1   D3  // GPIO0 - Tecla Cochera    
+#define SALIDA1     D4  // GPIO1 - Luz Cochera  
+
+///////////////////////////////////////////////////////////////////////////
+//   WiFi
+///////////////////////////////////////////////////////////////////////////
+#define WIFI_SSID       "GuiFi"
+#define WIFI_PASSWORD   "paula1548"
+//#define DHCP            // uncomment for use DHCP
+#ifndef DHCP
+IPAddress NODE_IP(192,168,1,51);
+IPAddress NODE_GW(192,168,1,1);
+IPAddress NODE_MASK(255,255,255,0);
+#endif
+///////////////////////////////////////////////////////////////////////////
+//   MQTT
+///////////////////////////////////////////////////////////////////////////
+#define MQTT_CLIENT_ID    "NodoCochera"
+#define MQTT_USERNAME     "hass_mqtt"
+#define MQTT_PASSWORD     "chon2185"
+// #define MQTT_SERVER       "iotdevar.duckdns.org"
+#define MQTT_SERVER       "192.168.1.3"
+#define MQTT_SERVER_PORT  1883
+
+#define BASE_TOPIC "/" MQTT_CLIENT_ID
+#define SET_TOPIC "/set"
+#define STATUS_TOPIC "/status"
+#define MQTT_CONNECTED_STATUS "online"
+#define MQTT_DISCONNECTED_STATUS "offline"
+
+#define ON   "1"
+#define OFF  "0"
+
+#define TIMEOUT 5000
+
+#define RETAIN true
+#define QoS     0
+
+///////////////////////////////////////////////////////////////////////////
+//   DEBUG
+///////////////////////////////////////////////////////////////////////////
+#define DEBUG_TELNET
+//#define DEBUG_SERIAL
+
+///////////////////////////////////////////////////////////////////////////
+//   OTA
+///////////////////////////////////////////////////////////////////////////
+#define OTA
+#define OTA_HOSTNAME  MQTT_CLIENT_ID  // hostname esp8266-[ChipID] by default
+//#define OTA_PASSWORD  "password"  // no password by default
+//#define OTA_PORT      8266        // port 8266 by default
