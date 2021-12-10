@@ -8,11 +8,8 @@
 */
 
 #include <Arduino.h>
-#include <NTPClient.h>
 #include <ESP8266WiFi.h>          // https://github.com/esp8266/Arduino
 #include <PubSubClient.h>         // https://github.com/knolleary/pubsubclient
-#include <WiFiUdp.h>
-#include <Ticker.h>
 #include "config.h"
 
 #if defined(DEBUG_TELNET)
@@ -31,21 +28,11 @@ WiFiClient  telnetClient;
 WiFiClient    wifiClient;
 PubSubClient  mqttClient(wifiClient);
 
-#ifdef USE_NTP
-WiFiUDP ntpUDP;
-//NTPClient timeClient(ntpUDP);
-NTPClient timeClient(ntpUDP, NTP_SERVER, 3600, 60000);
-Ticker print_ntp_time;
-#endif
-
-void PublicarLuz(void);
+void PublicarBomba(void);
 void PublicarTecla(void);
 
-const char Tecla_txt[14] = "tecla_cochera";
-const char Luz_txt [12] = "luz_cochera";
-
 struct Status{
-boolean Luz = 0;
+boolean Bomba = 0;
 uint8_t Tecla = 1;
 }nodo;
 
@@ -155,10 +142,10 @@ void handleMQTTMessage(char* p_topic, byte* p_payload, unsigned int p_length) {
   
   boolean set_value = false;
 
-  if (topic.indexOf(Luz_txt)>0)
+  if (topic.indexOf(SET_TOPIC)>0)
   {
     DEBUG_PRINT(F("FOUND: "));
-    DEBUG_PRINTLN(Luz_txt);
+    DEBUG_PRINTLN(SET_TOPIC);
     if(payload.equals(ON))
     {
       set_value = true;
@@ -170,15 +157,14 @@ void handleMQTTMessage(char* p_topic, byte* p_payload, unsigned int p_length) {
       DEBUG_PRINTLN(F("PAYLOAD: OFF"));
     } 
     
-    if(set_value != nodo.Luz)
+    if(set_value != nodo.Bomba)
     {
-      nodo.Luz = set_value;
-      digitalWrite(SALIDA1, nodo.Luz);
-      DEBUG_PRINT(Luz_txt);
-      DEBUG_PRINT(F(" TURNED: "));
-      DEBUG_PRINTLN((nodo.Luz)?"ON":"OFF");
+      nodo.Bomba = set_value;
+      digitalWrite(SALIDA1, nodo.Bomba);
+      DEBUG_PRINT(F("Water PUMP TURNED: "));
+      DEBUG_PRINTLN((nodo.Bomba)?"ON":"OFF");
     }
-    PublicarLuz();
+    PublicarBomba();
   }
 }
 
@@ -221,19 +207,14 @@ void connectToMQTT()
   {
     if (lastMQTTConnection + TIMEOUT < millis())
     {
-      StringTopic = String(BASE_TOPIC) + String(STATUS_TOPIC);
-      StringTopic.toCharArray(CharTopic, sizeof(CharTopic));
-      if (mqttClient.connect(MQTT_CLIENT_ID, MQTT_USERNAME, MQTT_PASSWORD, CharTopic, QoS, RETAIN, MQTT_DISCONNECTED_STATUS))
+      if (mqttClient.connect(MQTT_CLIENT_ID, MQTT_USERNAME, MQTT_PASSWORD, LWT_TOPIC, QoS, RETAIN, MQTT_DISCONNECTED_STATUS))
       {
         DEBUG_PRINTLN(F("INFO: The client is successfully connected to the MQTT broker"));
-        publishToMQTT(CharTopic, MQTT_CONNECTED_STATUS);
+        publishToMQTT(LWT_TOPIC, MQTT_CONNECTED_STATUS);
 
-        PublicarLuz();
+        PublicarBomba();
         PublicarTecla();
-
-        StringTopic = String(BASE_TOPIC) + "/" + String(Luz_txt) + String(SET_TOPIC);
-        StringTopic.toCharArray(CharTopic, sizeof(CharTopic));
-        subscribeToMQTT(CharTopic);
+        subscribeToMQTT(SET_TOPIC);
       } 
       else
       {
@@ -254,20 +235,16 @@ void connectToMQTT()
 #pragma region Publicaciones MQTT
 void PublicarTecla()
 {
-  StringTopic = String(BASE_TOPIC) + "/" + String(Tecla_txt) + String(STATUS_TOPIC);
-  StringTopic.toCharArray(CharTopic, sizeof(CharTopic));
   StringData = String((nodo.Tecla)?ON:OFF);
   StringData.toCharArray(CharData, sizeof(CharData));
-  publishToMQTT(CharTopic, CharData);
+  publishToMQTT(STATUS_TECLA_TOPIC, CharData);
 }
 
-void PublicarLuz()
+void PublicarBomba()
 {
-  StringTopic = String(BASE_TOPIC) + "/" + String(Luz_txt) + String(STATUS_TOPIC);
-  StringTopic.toCharArray(CharTopic, sizeof(CharTopic));
-  StringData = String((nodo.Luz)?ON:OFF);
+  StringData = String((nodo.Bomba)?ON:OFF);
   StringData.toCharArray(CharData, sizeof(CharData));
-  publishToMQTT(CharTopic, CharData);
+  publishToMQTT(STATUS_BOMBA_TOPIC, CharData);
 }
 
 #pragma endregion
@@ -293,9 +270,9 @@ void CheckTeclas(){
     {
       if(!nodo.Tecla&curStatus) // Si la tecla pasa de 0 a 1
       {
-        nodo.Luz^=1;            // Invierto la salida 
-        digitalWrite(SALIDA1, nodo.Luz);  // Activo/Desactivo Salida
-        PublicarLuz();
+        nodo.Bomba^=1;            // Invierto la salida 
+        digitalWrite(SALIDA1, nodo.Bomba);  // Activo/Desactivo Salida
+        PublicarBomba();
       }
       nodo.Tecla = curStatus;
       RoundCheck = 0;
@@ -307,13 +284,6 @@ void CheckTeclas(){
 }
 
 #pragma endregion
-
-#ifdef USE_NTP
-void print_time(){
-  timeClient.update();
-  Serial.println(timeClient.getFormattedTime());
-}
-#endif
 
 ///////////////////////////////////////////////////////////////////////////
 //  SETUP() AND LOOP()
@@ -337,10 +307,6 @@ void setup()
   mqttClient.setCallback(handleMQTTMessage);
 
   connectToMQTT();
-  #ifdef USE_NTP
-  timeClient.begin();
-  print_ntp_time.attach(60, print_time);
-  #endif
 
   digitalWrite(SALIDA1, LOW);
 

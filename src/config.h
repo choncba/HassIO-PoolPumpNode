@@ -2,14 +2,14 @@
 //   PINS
 ///////////////////////////////////////////////////////////////////////////
 #include "secrets.h"
-#define PULSADOR1   D3  // GPIO0 - Tecla Bomba    
-#define SALIDA1     D4  // GPIO1 - Salida a Bomba  
+#define PULSADOR1   0 // D3  // GPIO0 - Tecla Bomba    
+#define SALIDA1     2 // D4  // GPIO1 - Salida a Bomba  
 
 ///////////////////////////////////////////////////////////////////////////
 //   WiFi
 ///////////////////////////////////////////////////////////////////////////
 #define WIFI_SSID       WIFI_SECRET_SSID
-#define WIFI_PASSWORD   WIFI_SECRET_PASS
+#define WIFI_PASSWORD   WIFI_SECRET_PASSWORD
 //#define DHCP            // uncomment for use DHCP
 #ifndef DHCP
 IPAddress NODE_IP(192,168,0,55);
@@ -27,9 +27,10 @@ IPAddress NODE_MASK(255,255,255,0);
 #define MQTT_SERVER_PORT  1883
 
 #define BASE_TOPIC "/" MQTT_CLIENT_ID
-#define SET_TOPIC "/set"
-#define STATUS_TOPIC "/status"
-#define LWT_TOPIC "/lwt"
+#define SET_TOPIC BASE_TOPIC "/set"
+#define STATUS_BOMBA_TOPIC BASE_TOPIC "/status_bomba"
+#define STATUS_TECLA_TOPIC BASE_TOPIC "/status_tecla"
+#define LWT_TOPIC BASE_TOPIC "/LWT"
 #define MQTT_CONNECTED_STATUS "online"
 #define MQTT_DISCONNECTED_STATUS "offline"
 
@@ -41,12 +42,8 @@ IPAddress NODE_MASK(255,255,255,0);
 #define RETAIN true
 #define QoS     0
 
-///////// NTP ////////////
-#define USE_NTP 
-#define NTP_SERVER "ar.pool.ntp.org"
-
 ///////////////////////////////////////////////////////////////////////////
 //   DEBUG
 ///////////////////////////////////////////////////////////////////////////
-//#define DEBUG_TELNET
-#define DEBUG_SERIAL
+#define DEBUG_TELNET
+//#define DEBUG_SERIAL
