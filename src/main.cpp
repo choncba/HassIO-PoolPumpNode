@@ -142,7 +142,7 @@ void handleMQTTMessage(char* p_topic, byte* p_payload, unsigned int p_length) {
   
   boolean set_value = false;
 
-  if (topic.indexOf(SET_TOPIC)>0)
+  if (topic.equals(SET_TOPIC))
   {
     DEBUG_PRINT(F("FOUND: "));
     DEBUG_PRINTLN(SET_TOPIC);
