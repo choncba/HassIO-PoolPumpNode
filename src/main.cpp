@@ -265,8 +265,15 @@ void CheckTeclas(){
     {
       if(!nodo.Tecla&curStatus) // Si la tecla pasa de 0 a 1
       {
-        nodo.Bomba^=1;            // Invierto la salida 
-        digitalWrite(SALIDA1, nodo.Bomba);  // Activo/Desactivo Salida
+        nodo.Bomba^=1;            // Invierto la salida
+        if(nodo.Bomba)
+        {
+          digitalWrite(SALIDA1, HIGH);
+        }
+        else
+        {
+          digitalWrite(SALIDA1, LOW);
+        }
         PublicarBomba();
       }
       nodo.Tecla = curStatus;
