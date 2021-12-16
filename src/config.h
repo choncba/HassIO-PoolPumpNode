@@ -39,7 +39,7 @@ IPAddress NODE_MASK(255,255,255,0);
 
 #define TIMEOUT 5000
 
-#define RETAIN true
+#define RETAIN false
 #define QoS     0
 
 ///////////////////////////////////////////////////////////////////////////

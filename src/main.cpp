@@ -140,30 +140,25 @@ void handleMQTTMessage(char* p_topic, byte* p_payload, unsigned int p_length) {
   DEBUG_PRINT(F("INFO: MQTT payload: "));
   DEBUG_PRINTLN(payload);
   
-  boolean set_value = false;
-
   if (topic.equals(SET_TOPIC))
   {
     DEBUG_PRINT(F("FOUND: "));
     DEBUG_PRINTLN(SET_TOPIC);
     if(payload.equals(ON))
     {
-      set_value = true;
+      nodo.Bomba = true;
+      digitalWrite(SALIDA1, HIGH);
       DEBUG_PRINTLN(F("PAYLOAD: ON"));
     }  
     if(payload.equals(OFF))
     {
-      set_value = false;
+      nodo.Bomba = false;
+      digitalWrite(SALIDA1, LOW);
       DEBUG_PRINTLN(F("PAYLOAD: OFF"));
     } 
-    
-    if(set_value != nodo.Bomba)
-    {
-      nodo.Bomba = set_value;
-      digitalWrite(SALIDA1, nodo.Bomba);
-      DEBUG_PRINT(F("Water PUMP TURNED: "));
-      DEBUG_PRINTLN((nodo.Bomba)?"ON":"OFF");
-    }
+        
+    DEBUG_PRINT(F("Water PUMP STATUS: "));
+    DEBUG_PRINTLN((nodo.Bomba)?"ON":"OFF");
     PublicarBomba();
   }
 }
@@ -293,6 +288,7 @@ void setup()
 {
   pinMode(PULSADOR1, INPUT);
   pinMode(SALIDA1, OUTPUT);
+  digitalWrite(SALIDA1, LOW);
 
 #if defined(DEBUG_SERIAL)
   Serial.begin(115200);
